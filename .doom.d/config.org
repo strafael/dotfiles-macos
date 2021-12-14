@@ -1,0 +1,98 @@
+#+TITLE: Doom Emacs Config
+#+PROPERTY: header-args :tangle ./config.el :mkdirp yes
+
+* About this config
+This is my personal Emacs config, based on a bunch of resources I've found online. It takes advantage of Doom Emacs, which includes a number of extensions and configurations out of the box.
+
+To use this file, open in Emacs and tangle with C-c C-v t which will extract all elips blocks in this file into config.el.
+
+Use this file to every customization you need, as [[https://github.com/hlissner/doom-emacs/blob/develop/docs/getting_started.org#configure][Doom does not recommend the Emacs customize mechanism]]:
+
+#+begin_quote
+Note: do not use M-x customize or the customize API in general. Doom is designed to be configured programmatically from your config.el, which can conflict with Customize’s way of modifying variables.
+#+end_quote
+
+* General configuration
+User information.
+#+begin_src emacs-lisp
+(setq user-full-name "Rafael Santos"
+      user-mail-address "rafael.santos@electric.ai")
+#+end_src
+
+Disable exit confirmation.
+#+begin_src emacs-lisp
+(setq confirm-kill-emacs nil)
+#+end_src
+
+* Theme
+#+begin_src emacs-lisp
+(use-package doom-themes
+  :ensure t
+  :config
+  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
+        doom-themes-enable-italic t) ; if nil, italics is universally disabled
+  (load-theme 'doom-dracula t)
+
+  (custom-set-faces!
+    '(font-lock-comment-face :slant italic))) ; Show comments in italic
+;; custom-set-faces must be used *after* the theme is loaded
+#+end_src
+
+* Fonts
+Settings related to fonts within Doom Emacs:
+- 'doom-font' -- standard monospace font that is used for most things in Emacs.
+- 'doom-variable-pitch-font' -- variable font which is useful in some Emacs plugins.
+- 'doom-big-font' -- used in doom-big-font-mode; useful for presentations.
+- 'font-lock-comment-face' -- for comments.
+- 'font-lock-keyword-face' -- for keywords with special significance, like ‘for’ and ‘if’ in C.
+
+#+begin_src emacs-lisp
+(setq doom-font (font-spec :family "SauceCodePro Nerd Font Mono" :style 'Regular :size 14)
+      doom-variable-pitch-font (font-spec :family "Helvetica Neue" :size 15)
+      doom-big-font (font-spec :family "DejaVuSansMono Nerd Font Mono" :size 24))
+#+end_src
+
+* Line settings
+Toggle display-line-numbers-type so I have line numbers relative to the current
+line. Doom Emacs uses 'SPC t' for "toggle" commands, so I choose 'SPC t t' for
+toggle-truncate-lines.
+
+#+begin_src emacs-lisp
+(setq display-line-numbers-type 'relative)
+(map! :leader
+      :desc "Truncate lines"
+      "t t" #'toggle-truncate-lines)
+#+end_src
+
+* lsp
+#+begin_src emacs-lisp
+(use-package lsp-mode
+  :ensure t
+  :config
+  (use-package lsp-ui
+    :ensure t
+    :config
+    (setq lsp-ui-doc-max-height 30
+          lsp-ui-doc-max-width 150
+          lsp-ui-doc-use-childframe t
+          lsp-ui-doc-enable nil)))
+#+end_src
+
+Folders that should not be watched.
+
+#+begin_src emacs-lisp
+(with-eval-after-load 'lsp-mode
+  (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.venv\\'"))
+#+end_src
+
+** Virtual Environments
+
+* Git timemachine with evil mode
+
+#+begin_src emacs-lisp
+(eval-after-load 'git-timemachine
+  '(progn
+     (evil-make-overriding-map git-timemachine-mode-map 'normal)
+     ;; force update evil keymaps after git-timemachine-mode loaded
+     (add-hook 'git-timemachine-mode-hook #'evil-normalize-keymaps)))
+#+end_src
