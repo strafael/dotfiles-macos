@@ -32,10 +32,8 @@
     (setq lsp-ui-doc-max-height 30
           lsp-ui-doc-max-width 150
           lsp-ui-doc-use-childframe t
-          lsp-ui-doc-enable nil)))
-
-(with-eval-after-load 'lsp-mode
-  (add-to-list 'lsp-file-watch-ignored-directories "[/\\\\]\\.venv\\'"))
+          lsp-ui-doc-enable nil
+          lsp-file-watch-ignored-directories '(".git" "node_modules" "venv" "build"))))
 
 (eval-after-load 'git-timemachine
   '(progn
