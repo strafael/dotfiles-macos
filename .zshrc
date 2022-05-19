@@ -47,7 +47,10 @@ activate() {
 #
 
 # Allows to run the non-native version of homebrew from an non-Rosetta terminal
-alias brew-x86='arch -x86_64 /usr/local/bin/brew'
+alias brew86='arch -x86_64 /usr/local/bin/brew'
+
+# Pyenv for x86 platform
+alias pyenv86="arch -x86_64 pyenv"
 
 # ls
 alias ll='exa -l --icons --color=always --group-directories-first'
@@ -74,11 +77,16 @@ alias df='grc df -h'
 # bare git repo for dotfiles
 alias config="/usr/bin/git --git-dir=$HOME/.dotfiles --work-tree=$HOME"
 
+# Ignore Deprecation warnings in pytest
+alias pytest="pytest -W ignore::DeprecationWarning"
+
 #
 # Exports
 #
 
-export PATH=~/.emacs.d/bin:$PATH
+export PATH="$HOME/.emacs.d/bin:$PATH"
+export PATH="$HOME/.rbenv/shims:$PATH"
+export PATH="$HOME/.rbenv/bin:$PATH"
 export EDITOR=nvim
 
 # Only allows pip to be executed inside virtual envs
@@ -86,6 +94,14 @@ export PIP_REQUIRE_VIRTUALENV=true
 
 # Fix double Python virtualenv name
 export VIRTUAL_ENV_DISABLE_PROMPT=true
+
+# Pyenv
+#eval "$(pyenv init --path)"
+#eval "$(pyenv init -)"
+#eval "$(pyenv virtualenv-init -)"
+
+# rbenv
+eval "$(rbenv init - zsh)"
 
 # Starship prompt
 eval "$(starship init zsh)"
@@ -104,3 +120,5 @@ bindkey "^[[1;5D" backward-word
 # Data file: $HOME/.z
 . $HOME/.scripts/z.sh
 
+
+export PATH="$HOME/.poetry/bin:$PATH"

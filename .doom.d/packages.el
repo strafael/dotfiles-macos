@@ -49,4 +49,8 @@
 ;; ...Or *all* packages (NOT RECOMMENDED; will likely break things)
 ;(unpin! t)
 
-(package! py-isort)
+(package! lsp-treemacs)
+;; (package! pyls-isort)
+;; (package! pylsp-rope)
+;; (package! python-lsp-black)
+(package! darkroom)
