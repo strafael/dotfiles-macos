@@ -52,6 +52,9 @@ alias brew86='arch -x86_64 /usr/local/bin/brew'
 # Pyenv for x86 platform
 alias pyenv86="arch -x86_64 pyenv"
 
+# Avoid accidentally linking against a Pyenv-provided Python
+alias brew='env PATH="${PATH//$(pyenv root)\/shims:/}" brew'
+
 # ls
 alias ll='exa -l --icons --color=always --group-directories-first'
 alias lla='exa -al --icons --color=always --group-directories-first'
@@ -87,6 +90,7 @@ alias pytest="pytest -W ignore::DeprecationWarning"
 export PATH="$HOME/.emacs.d/bin:$PATH"
 export PATH="$HOME/.rbenv/shims:$PATH"
 export PATH="$HOME/.rbenv/bin:$PATH"
+export PATH="$HOME/Library/Python/3.9/bin:$PATH"
 export EDITOR=nvim
 
 # Only allows pip to be executed inside virtual envs
@@ -96,8 +100,8 @@ export PIP_REQUIRE_VIRTUALENV=true
 export VIRTUAL_ENV_DISABLE_PROMPT=true
 
 # Pyenv
-#eval "$(pyenv init --path)"
-#eval "$(pyenv init -)"
+eval "$(pyenv init --path)"
+eval "$(pyenv init -)"
 #eval "$(pyenv virtualenv-init -)"
 
 # rbenv
