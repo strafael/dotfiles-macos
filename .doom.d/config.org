@@ -1,115 +1,215 @@
-#+TITLE: Doom Emacs Config
-#+PROPERTY: header-args :tangle ./config.el :mkdirp yes
+#+title: Doom Emacs Config
+#+PROPERTY: header-args:emacs-lisp :tangle yes :comments link
+#+options: coverpage:yes
+#+startup: fold
 
 * About this config
-This is my personal Emacs config, based on a bunch of resources I've found online. It takes advantage of Doom Emacs, which includes a number of extensions and configurations out of the box.
+This is my personal Emacs config, based on a bunch of resources I've found
+online. It takes advantage of Doom Emacs, which includes a number of extensions
+and configurations out of the box.
 
-To use this file, open in Emacs and tangle with C-c C-v t which will extract all elips blocks in this file into config.el.
+To use this file, open in Emacs and tangle with C-c C-v t which will extract all
+elips blocks in this file into config.el.
 
-Use this file to every customization you need, as [[https://github.com/hlissner/doom-emacs/blob/develop/docs/getting_started.org#configure][Doom does not recommend the Emacs customize mechanism]]:
-
+Use this file to every customization you need, as [[https://github.com/hlissner/doom-emacs/blob/develop/docs/getting_started.org#configure][Doom does not recommend the
+Emacs customize mechanism]]:
 #+begin_quote
-Note: do not use M-x customize or the customize API in general. Doom is designed to be configured programmatically from your config.el, which can conflict with Customize’s way of modifying variables.
+Note: do not use M-x customize or the customize API in general. Doom is designed
+to be configured programmatically from your config.el, which can conflict with
+Customize’s way of modifying variables.
 #+end_quote
 
-* General configuration
+* Basic configuration
+** Personal information
 User information.
 #+begin_src emacs-lisp
 (setq user-full-name "Rafael Santos"
       user-mail-address "rafael.santos@electric.ai")
+(setq org-directory "~/org/")
 #+end_src
 
-Disable exit confirmation.
+** Better defaults
+*** Simple settings
 #+begin_src emacs-lisp
-(setq confirm-kill-emacs nil)
+(setq undo-limit 80000000               ; raise undo limit to 80Mb
+      evil-want-fine-undo t             ; by default all changes in insert mode are one big blob
+      auto-save-default t               ; auto save
+      truncate-string-ellipsis "…"      ; unicode ellipsis
+      scroll-margin 2)                  ; margin at the top and bottom of a window
+
+(global-subword-mode 1)                 ; iterate throught CamelCase words
 #+end_src
 
-* Theme
+*** Auto-customizations
+By default changes made via a customisation interface are added to =init.el=. I
+prefer the idea of using a separate file for this. We just need to change a
+setting, and load it if it exists.
 #+begin_src emacs-lisp
-(use-package doom-themes
-  :ensure t
-  :config
-  (setq doom-themes-enable-bold t    ; if nil, bold is universally disabled
-        doom-themes-enable-italic t) ; if nil, italics is universally disabled
-  (load-theme 'doom-xcode t)
-
-  (custom-set-faces!
-    '(font-lock-comment-face :slant italic))) ; Show comments in italic
-;; custom-set-faces must be used *after* the theme is loaded
+(setq-default custom-file (expand-file-name ".custom.el" doom-private-dir))
+(when (file-exists-p custom-file)
+  (load custom-file))
 #+end_src
 
-* Fonts
-Settings related to fonts within Doom Emacs:
-- 'doom-font' -- standard monospace font that is used for most things in Emacs.
-- 'doom-variable-pitch-font' -- variable font which is useful in some Emacs plugins.
-- 'doom-big-font' -- used in doom-big-font-mode; useful for presentations.
-- 'font-lock-comment-face' -- for comments.
-- 'font-lock-keyword-face' -- for keywords with special significance, like ‘for’ and ‘if’ in C.
+*** Windows
+I find it rather handy to be asked which buffer I want to see after splitting
+the window. Let's make that happen.
 
+First, we'll enter the new window
+#+begin_src emacs-lisp
+(setq evil-vsplit-window-right t
+      evil-split-window-below t)
+#+end_src
+
+Then, we'll pull up a buffer prompt.
+#+begin_src emacs-lisp
+(defadvice! prompt-for-buffer (&rest _)
+  :after '(evil-window-split evil-window-vsplit)
+  (consult-buffer))
+#+end_src
+
+*** Visual settings
+**** Font Face
 #+begin_src emacs-lisp
 (setq doom-font (font-spec :family "Comic Code" :style 'Regular :size 13)
+      doom-big-font (font-spec :family "Comic Code" :size 24)
       doom-variable-pitch-font (font-spec :family "Comic Code" :size 14)
-      doom-big-font (font-spec :family "Comic Code" :size 24))
-;; (setq doom-font (font-spec :family "JetBrainsMono Nerd Font Mono" :style 'Regular :size 13)
-;;       doom-variable-pitch-font (font-spec :family "JetBrainsMono Nerd Font Mono" :size 14)
-;;       doom-big-font (font-spec :family "JetBrainsMono Nerd Font Mono" :size 24))
-
-;; Give each line some room to breathe.
-(setq-default line-spacing 0.3)
+      doom-unicode-font (font-spec :family "JuliaMono")
+      doom-serif-font (font-spec :family "Comic Code"))
+#+end_src
+**** Theme and modeline
+#+begin_src emacs-lisp
+(setq doom-theme 'doom-vibrant)
+(custom-set-faces!
+  '(font-lock-comment-face :slant italic))      ; show comments in italic
 #+end_src
 
-* Line settings
-Toggle display-line-numbers-type so I have line numbers relative to the current
-line. Doom Emacs uses 'SPC t' for "toggle" commands, so I choose 'SPC t t' for
-toggle-truncate-lines.
+By default, ~red~ text is used in ~modeline~, so let's make that orange so I
+don't feel like something's gone wrong when editing files.
+#+begin_src emacs-lisp
+(custom-set-faces!
+  '(doom-modeline-buffer-modified :foreground "orange"))
+#+end_src
 
+**** Miscellaneus
+Relative line numbers to the current line.
 #+begin_src emacs-lisp
 (setq display-line-numbers-type 'relative)
+#+end_src
+
+Create a shortcut to toggle truncate lines.
+#+begin_src emacs-lisp
 (map! :leader
       :desc "Truncate lines"
       "t t" #'toggle-truncate-lines)
 #+end_src
 
-* lsp
 #+begin_src emacs-lisp
-(use-package lsp-mode
-  :ensure t
-  :config
-  (use-package lsp-ui
-    :ensure t
-    :config
-    (setq lsp-ui-doc-max-height 30
-          lsp-ui-doc-max-width 150
-          lsp-ui-doc-use-childframe t
-          lsp-ui-doc-enable nil
-          lsp-file-watch-ignored-directories '(".git" "node_modules" "venv" "build")))
-  (use-package lsp-pylsp
-    :ensure t
-    :config
-    (setq lsp-pylsp-plugins-pydocstyle-add-ignore ["D104" "D105" "D107" "D203" "D204" "D213" "D215" "D400" "D401" "D404" "D406" "D407" "D408" "D409" "D413" "D417"])))
+(setq-default line-spacing 0.3)         ; Give each line some room to breathe.
 #+end_src
 
-** Virtual Environments
-
-* Git timemachine with evil mode
-
+** Other things
+*** Which key
+Let’s make this popup a bit faster.
+#+begin_src emacs-lisp
+(setq which-key-idle-delay 0.5)         ; I need the help, I really do
+#+end_src
+*** Evil
+#+begin_src emacs-lisp
+(after! evil
+  (setq evil-move-cursor-back nil       ; don't move the block cursor back when exiting insert mode
+        evil-kill-on-visual-paste nil)) ; don't save the replaced text in visual mode to the kill ring, making it the default for the next paste
+#+end_src
+*** Company
+It’s nice to have completions almost all the time, in my opinion. Key strokes
+are just waiting to be saved!
+#+begin_src emacs-lisp
+(after! company
+  (setq company-idle-delay 0.5
+        company-minimum-prefix-length 2)
+  (setq company-show-numbers t)
+  ;; (add-hook 'evil-normal-state-entry-hook #'company-abort)) ;; make aborting less annoying.
+#+end_src
+Now, the improvements from ~precedent~ are mostly from remembering history, so
+let’s improve that memory.
+#+begin_src emacs-lisp
+(setq-default history-length 1000)
+(setq-default prescient-history-length 1000)
+#+end_src
+*** Projectile
+Looking at documentation via =SPC h f= and =SPC h v= and looking at the source
+can add package src directories to projectile. This isn’t desirable in my
+opinion.
+#+begin_src emacs-lisp
+(setq projectile-ignored-projects '("~/" "/tmp" "~/.emacs.d/.local/straight/repos/"))
+(defun projectile-ignored-project-function (filepath)
+  "Return t if FILEPATH is within any of `projectile-ignored-projects'"
+  (or (mapcar (lambda (p) (s-starts-with-p p filepath)) projectile-ignored-projects)))
+#+end_src
+*** Zen
+#+begin_src emacs-lisp
+(setq +zen-text-scale 0.8)
+#+end_src
+*** Treemacs
+Quite often there are superfluous files I’m not that interested in. There’s no
+good reason for them to take up space. Let’s add a mechanism to ignore them.
+#+begin_src emacs-lisp
+(after! treemacs
+  (defvar treemacs-file-ignore-extensions '()
+    "File extension which `treemacs-ignore-filter' will ensure are ignored")
+  (defvar treemacs-file-ignore-globs '()
+    "Globs which will are transformed to `treemacs-file-ignore-regexps' which `treemacs-ignore-filter' will ensure are ignored")
+  (defvar treemacs-file-ignore-regexps '()
+    "RegExps to be tested to ignore files, generated from `treeemacs-file-ignore-globs'")
+  (defun treemacs-file-ignore-generate-regexps ()
+    "Generate `treemacs-file-ignore-regexps' from `treemacs-file-ignore-globs'"
+    (setq treemacs-file-ignore-regexps (mapcar 'dired-glob-regexp treemacs-file-ignore-globs)))
+  (if (equal treemacs-file-ignore-globs '()) nil (treemacs-file-ignore-generate-regexps))
+  (defun treemacs-ignore-filter (file full-path)
+    "Ignore files specified by `treemacs-file-ignore-extensions', and `treemacs-file-ignore-regexps'"
+    (or (member (file-name-extension file) treemacs-file-ignore-extensions)
+        (let ((ignore-file nil))
+          (dolist (regexp treemacs-file-ignore-regexps ignore-file)
+            (setq ignore-file (or ignore-file (if (string-match-p regexp full-path) t nil)))))))
+  (add-to-list 'treemacs-ignored-file-predicates #'treemacs-ignore-filter))
+#+end_src
+Now, we just identify the files in question.
+#+begin_src emacs-lisp
+(setq treemacs-file-ignore-extensions
+      '(;; LaTeX
+        "aux"
+        "ptc"
+        "fdb_latexmk"
+        "fls"
+        "synctex.gz"
+        "toc"
+        ;; LaTeX - glossary
+        "glg"
+        "glo"
+        "gls"
+        "glsdefs"
+        "ist"
+        "acn"
+        "acr"
+        "alg"
+        ;; LaTeX - pgfplots
+        "mw"
+        ;; LaTeX - pdfx
+        "pdfa.xmpi"
+        ))
+(setq treemacs-file-ignore-globs
+      '(;; LaTeX
+        "*/_minted-*"
+        ;; AucTeX
+        "*/.auctex-auto"
+        "*/_region_.log"
+        "*/_region_.tex"))
+#+end_src
+*** Git timemachine
+Use evil mode keybindings in git timemachine mode.
 #+begin_src emacs-lisp
 (eval-after-load 'git-timemachine
   '(progn
      (evil-make-overriding-map git-timemachine-mode-map 'normal)
      ;; force update evil keymaps after git-timemachine-mode loaded
      (add-hook 'git-timemachine-mode-hook #'evil-normalize-keymaps)))
-#+end_src
-
-* Org-roam
-
-#+begin_src emacs-lisp
-(use-package org-roam
-  :ensure t
-  :config
-  (setq org-roam-capture-templates
-        '(("d" "default" plain "%?"
-           :target (file+head "%<%Y%m%d%H%M%S>.org" "#+title: ${title}")
-           :unnarrowed t))))
-
 #+end_src

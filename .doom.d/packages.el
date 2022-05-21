@@ -49,8 +49,12 @@
 ;; ...Or *all* packages (NOT RECOMMENDED; will likely break things)
 ;(unpin! t)
 
+;; The very large files mode loads large files in chunks, allowing one to open
+;; ridiculously large files.
+(package! vlf)
+
+;; This makes it a breeze to take lovely screenshots.
+(package! screenshot)
+
+;; Integration between lsp-mode and treemacs.
 (package! lsp-treemacs)
-;; (package! pyls-isort)
-;; (package! pylsp-rope)
-;; (package! python-lsp-black)
-(package! darkroom)
