@@ -40,7 +40,7 @@
 ;; Font Face:1 ends here
 
 ;; [[file:config.org::*Theme and modeline][Theme and modeline:1]]
-(setq doom-theme 'doom-vibrant)
+(setq doom-theme 'doom-dracula)
 (custom-set-faces!
   '(font-lock-comment-face :slant italic))      ; show comments in italic
 ;; Theme and modeline:1 ends here
@@ -74,11 +74,23 @@
         evil-kill-on-visual-paste nil)) ; don't save the replaced text in visual mode to the kill ring, making it the default for the next paste
 ;; Evil:1 ends here
 
+;; [[file:config.org::*lsp][lsp:1]]
+(use-package lsp-mode
+  :config
+  (use-package lsp-ui
+    :config
+    (setq lsp-ui-doc-max-height 30
+          lsp-ui-doc-max-width 150
+          lsp-ui-doc-use-childframe t
+          lsp-ui-doc-enable nil
+          lsp-file-watch-ignored-directories '(".git" "node_modules" "venv" "build"))))
+;; lsp:1 ends here
+
 ;; [[file:config.org::*Company][Company:1]]
 (after! company
   (setq company-idle-delay 0.5
         company-minimum-prefix-length 2)
-  (setq company-show-numbers t)
+  (setq company-show-numbers t))
   ;; (add-hook 'evil-normal-state-entry-hook #'company-abort)) ;; make aborting less annoying.
 ;; Company:1 ends here
 

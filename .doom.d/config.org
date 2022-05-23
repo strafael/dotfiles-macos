@@ -78,7 +78,7 @@ Then, we'll pull up a buffer prompt.
 #+end_src
 **** Theme and modeline
 #+begin_src emacs-lisp
-(setq doom-theme 'doom-vibrant)
+(setq doom-theme 'doom-dracula)
 (custom-set-faces!
   '(font-lock-comment-face :slant italic))      ; show comments in italic
 #+end_src
@@ -119,6 +119,18 @@ Let’s make this popup a bit faster.
   (setq evil-move-cursor-back nil       ; don't move the block cursor back when exiting insert mode
         evil-kill-on-visual-paste nil)) ; don't save the replaced text in visual mode to the kill ring, making it the default for the next paste
 #+end_src
+*** lsp
+#+begin_src emacs-lisp
+(use-package lsp-mode
+  :config
+  (use-package lsp-ui
+    :config
+    (setq lsp-ui-doc-max-height 30
+          lsp-ui-doc-max-width 150
+          lsp-ui-doc-use-childframe t
+          lsp-ui-doc-enable nil
+          lsp-file-watch-ignored-directories '(".git" "node_modules" "venv" "build"))))
+#+end_src
 *** Company
 It’s nice to have completions almost all the time, in my opinion. Key strokes
 are just waiting to be saved!
@@ -126,7 +138,7 @@ are just waiting to be saved!
 (after! company
   (setq company-idle-delay 0.5
         company-minimum-prefix-length 2)
-  (setq company-show-numbers t)
+  (setq company-show-numbers t))
   ;; (add-hook 'evil-normal-state-entry-hook #'company-abort)) ;; make aborting less annoying.
 #+end_src
 Now, the improvements from ~precedent~ are mostly from remembering history, so
