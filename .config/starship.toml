@@ -1,6 +1,9 @@
 # Inserts a blank line between shell prompts
 add_newline = true
 
+# Increase annoying command timeout
+command_timeout = 10000
+
 # Disable the package module, hiding it from the prompt completely
 [package]
 disabled = true

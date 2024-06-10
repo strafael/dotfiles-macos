@@ -1,0 +1,19 @@
+yabai -m config \
+	layout bsp \
+	window_placement second_child \
+	top_padding 8 \
+	bottom_padding 8 \
+	left_padding 8 \
+	right_padding 8 \
+	window_gap 10 \
+	window_shadow on \
+	window_zoom_persist off \
+	window_opacity off \
+	active_window_opacity 1.0 \
+	normal_window_opaticy 1.0 \
+	window_opacity_duration 0.0
+
+# Disable specific apps
+yabai -m rule --add app="^System Settings$" manage=off
+yabai -m rule --add app="^Calculator$" manage=off
+

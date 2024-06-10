@@ -1,5 +1,15 @@
-tmux attach &> /dev/null
-if [ "$TMUX" = "" ]; then tmux; fi
+# Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
+# Initialization code that may require console input (password prompts, [y/n]
+# confirmations, etc.) must go above this block; everything else may go below.
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+# Theme
+source /opt/homebrew/share/powerlevel10k/powerlevel10k.zsh-theme
+
+# To customize prompt, run `p10k configure` or edit ~/.p10k.zsh.
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
 #
 # Functions
@@ -31,6 +41,34 @@ ex ()
     echo "'$1' is not a valid file"
   fi
 }
+
+# Cursor for NORMAL and INSERT modes
+cursor_mode() {
+    # See https://ttssh2.osdn.jp/manual/4/en/usage/tips/vim.html for cursor shapes
+    cursor_block='\e[2 q'
+    cursor_beam='\e[6 q'
+
+    function zle-keymap-select {
+        if [[ ${KEYMAP} == vicmd ]] ||
+            [[ $1 = 'block' ]]; then
+            echo -ne $cursor_block
+        elif [[ ${KEYMAP} == main ]] ||
+            [[ ${KEYMAP} == viins ]] ||
+            [[ ${KEYMAP} = '' ]] ||
+            [[ $1 = 'beam' ]]; then
+            echo -ne $cursor_beam
+        fi
+    }
+
+    zle-line-init() {
+        echo -ne $cursor_beam
+    }
+
+    zle -N zle-keymap-select
+    zle -N zle-line-init
+}
+
+cursor_mode
 
 # Activate a virtualenv in the current directory
 activate() {
@@ -65,11 +103,11 @@ alias rm='rm -i'
 alias grep='grep -i --color=auto'
 alias egrep='egrep -i --color=auto'
 alias fgrep='fgrep -i --color=auto'
-alias ps='grc ps'
-alias ping='grc ping'
-alias lsblk='grc lsblk'
-alias du='grc du -h'
-alias df='grc df -h'
+# alias ps='grc ps'
+# alias ping='grc ping'
+# alias lsblk='grc lsblk'
+# alias du='grc du -h'
+# alias df='grc df -h'
 
 # bare git repo for dotfiles
 alias config="/usr/bin/git --git-dir=$HOME/.dotfiles --work-tree=$HOME"
@@ -78,37 +116,41 @@ alias config="/usr/bin/git --git-dir=$HOME/.dotfiles --work-tree=$HOME"
 alias pytest="pytest -W ignore::DeprecationWarning"
 
 #
-# Exports
-#
-
-export PATH="$HOME/.emacs.d/bin:$PATH"
-export EDITOR=nvim
-
-# Only allows pip to be executed inside virtual envs
-# export PIP_REQUIRE_VIRTUALENV=true
-
-# Fix double Python virtualenv name
-# export VIRTUAL_ENV_DISABLE_PROMPT=true
-
-#
 # Keybindings
 #
-
-bindkey "^[[H" beginning-of-line
-bindkey "^[[F" end-of-line
-bindkey "^[[1;5C" forward-word
-bindkey "^[[1;5D" backward-word
+bindkey -v
+export KEYTIMEOUT=1
 
 #
 # Prompt
 #
-eval "$(starship init zsh)"
 
 # Jump around with z.sh
 # Must be after starship, otherwise it adds characters to the prompt.
 # Data file: $HOME/.z
 . $HOME/.scripts/z.sh
 
+# History
+HISTFILE=~/.zsh_history
+SAVEHIST=10000
+HISTSIZE=10000
+setopt sharehistory
+setopt hist_expire_dups_first
+setopt hist_ignore_dups
+setopt hist_verify
+bindkey "^[[A" history-search-backward
+bindkey "^[[B" history-search-forward
+
 # asdf
-. $(brew --prefix asdf)/asdf.sh
+. $(brew --prefix asdf)/libexec/asdf.sh
+. ~/.asdf/plugins/java/set-java-home.zsh
+
+# Auto completion
+source $HOME/.config/zsh/completion.zsh
+
+# Auto suggestions
+source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+
+# zsh Syntax Highlighting
+source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
