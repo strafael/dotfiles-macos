@@ -48,3 +48,9 @@
 ;; (unpin! pinned-package another-pinned-package)
 ;; ...Or *all* packages (NOT RECOMMENDED; will likely break things)
 ;; (unpin! t)
+
+(package! all-the-icons-dired)  ; Adds dired support to all-the-icons.
+(package! org-bullets)          ; Show org-mode bullets as UTF-8 characters.
+(package! evil-surround)        ; Emulates surround.vim by Tim Pope.
+(package! magit-delta)          ; Configures Magit to use delta when displaying diffs.
+(package! ayu-theme)

@@ -1,0 +1,103 @@
+#+title: Doom Emacs Config
+#+property: header-args :tangle yes
+
+* Table of contets :toc:
+- [[#about-this-config][About this config]]
+- [[#theme][Theme]]
+- [[#fonts][Fonts]]
+- [[#line-settings][Line settings]]
+- [[#org-mode][Org mode]]
+- [[#vim-surround][Vim surround]]
+- [[#treemacs][Treemacs]]
+- [[#magit-delta][Magit Delta]]
+
+* About this config
+This is my personal Doom Emacs config.
+
+To use this file you can load in Emacs an tangle with =C-c C-v C-t= which will
+create config.el in the same directory as this file. This will extract all elisp
+blocks in this document into a file to be used as Emacs config file.
+
+This document also describes my workflow.
+
+Based on:
+- [[https://gitlab.com/dwt1/dotfiles/-/blob/master/.doom.d/config.org]]
+- [[http://doc.norang.ca/org-mode.html][Org Mode - Organize Your Life In Plain Text!]]
+
+* Theme
+#+begin_src emacs-lisp
+(setq doom-theme 'doom-one)
+#+end_src
+
+* Fonts
+Settings related to fonts within Doom Emacs:
+- 'doom-font' -- standard monospace font that is used for most things in Emacs.
+- 'doom-variable-pitch-font' -- variable font which is useful in some Emacs plugins.
+- 'doom-big-font' -- used in doom-big-font-mode; useful for presentations.
+- 'font-lock-comment-face' -- for comments.
+- 'font-lock-keyword-face' -- for keywords with special significance, like ‘for’ and ‘if’ in C.
+
+#+begin_src emacs-lisp
+(setq doom-font (font-spec :family "UbuntuMono Nerd Font Mono" :size 17 :style 'Regular)
+      doom-big-font (font-spec :family "DejaVu Sans Mono" :size 24))
+
+(setq-default line-spacing 4)
+
+(after! doom-themes
+  (setq doom-themes-enable-bold t
+        doom-themes-enable-italic t))
+
+;; Show comments in italic
+(custom-set-faces!
+  '(font-lock-comment-face :slant italic))
+
+(add-hook 'treemacs-mode-hook (lambda () (text-scale-decrease 1)))
+#+end_src
+
+* Line settings
+Toggle display-line-numbers-type so I have line numbers relative to the current
+line. Doom Emacs uses 'SPC t' for "toggle" commands, so I choose 'SPC t t' for
+toggle-truncate-lines.
+#+begin_src emacs-lisp
+(setq display-line-numbers-type 'relative)
+(map! :leader
+      :desc "Truncate lines"
+      "t t" #'toggle-truncate-lines)
+#+end_src
+
+* Org mode
+#+begin_src emacs-lisp
+(after! org
+  (require 'org-bullets)
+  (add-hook 'org-mode-hook (lambda () (org-bullets-mode 1)))
+  (setq org-ellipsis " ▼ "
+        org-superstar-headline-bullets-list '("◉" "●" "○" "◆" "●" "○" "◆")
+        org-superstar-itembullet-alist '((?+ . ?➤) (?- . ?✦)) ; changes +/- symbols in item lists
+        org-hide-emphasis-markers t
+        calendar-week-start-day 1
+        ))
+#+end_src
+
+* Vim surround
+#+begin_src emacs-lisp
+(use-package evil-surround
+  :ensure t
+  :config
+  (global-evil-surround-mode 1))
+#+end_src
+
+* Treemacs
+#+begin_src emacs-lisp
+(after! treemacs
+  (setq treemacs-is-never-other-window t
+        treemacs-follow-mode t
+        treemacs-width 45))
+
+(after! doom-themes
+  (setq doom-themes-treemacs-enable-variable-pitch t))
+#+end_src
+
+* Magit Delta
+#+begin_src emacs-lisp
+(add-hook 'magit-mode-hook (lambda () (magit-delta-mode +1)))
+#+end_src
